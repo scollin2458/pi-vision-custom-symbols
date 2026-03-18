@@ -140,6 +140,13 @@
     </div>
 
     <div style="margin-top:10px;">
+        <label>
+            <input type="checkbox" ng-model="config.MarkerEditHidePopupTitle">
+            Hide popup title
+        </label>
+    </div>
+
+    <div style="margin-top:10px;">
         <button
             ng-click="config.SaveSelectedMarkerTrigger = (config.SaveSelectedMarkerTrigger || 0) + 1"
             ng-disabled="config.SelectedMarkerIndex < 0 || config.SelectedMarkerIndex == -2"
@@ -150,7 +157,7 @@
     </div>
 
     <div style="margin-top:10px; color:#666;">
-        Set a custom popup title, link label, and target behavior for the selected marker.
+        Set a custom popup title, hide it when needed, and control link label and target behavior for the selected marker.
     </div>
 </div>
 

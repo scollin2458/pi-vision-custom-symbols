@@ -157,6 +157,7 @@
                 scope.config.MarkerEditDisplayLabel = '';
             }
             scope.config.MarkerEditOpenInNewTab = scope.config.MarkerEditOpenInNewTab !== false;
+            scope.config.MarkerEditHidePopupTitle = scope.config.MarkerEditHidePopupTitle === true;
 
             for (var i = 0; i < scope.config.Markers.length; i++) {
                 var m = scope.config.Markers[i];
@@ -172,6 +173,11 @@
                 }
                 if (m.openInNewTab === undefined || m.openInNewTab === null) {
                     m.openInNewTab = true;
+                }
+                if (m.hidePopupTitle === undefined || m.hidePopupTitle === null) {
+                    m.hidePopupTitle = false;
+                } else {
+                    m.hidePopupTitle = !!m.hidePopupTitle;
                 }
 
                 if (m.labelOffsetX === undefined || m.labelOffsetX === null || isNaN(parseFloat(m.labelOffsetX))) {
@@ -211,6 +217,7 @@
             scope.config.MarkerEditDisplayUrl = marker.displayUrl || '';
             scope.config.MarkerEditDisplayLabel = marker.displayLabel || '';
             scope.config.MarkerEditOpenInNewTab = marker.openInNewTab !== false;
+            scope.config.MarkerEditHidePopupTitle = marker.hidePopupTitle === true;
         }
 
         function clearEditor() {
@@ -218,6 +225,7 @@
             scope.config.MarkerEditDisplayUrl = '';
             scope.config.MarkerEditDisplayLabel = '';
             scope.config.MarkerEditOpenInNewTab = true;
+            scope.config.MarkerEditHidePopupTitle = false;
         }
 
         function saveEditorIntoSelectedMarker() {
@@ -232,6 +240,7 @@
             marker.displayUrl = scope.config.MarkerEditDisplayUrl || '';
             marker.displayLabel = scope.config.MarkerEditDisplayLabel || '';
             marker.openInNewTab = scope.config.MarkerEditOpenInNewTab !== false;
+            marker.hidePopupTitle = scope.config.MarkerEditHidePopupTitle === true;
         }
 
         function loadCssOnce(url) {
@@ -442,7 +451,11 @@
 
         function buildPopupHtml(marker) {
             var title = marker.title || 'Marker';
-            var html = '<div style="font-weight:bold; margin-bottom:4px;">' + title + '</div>';
+            var html = '';
+
+            if (!marker.hidePopupTitle) {
+                html = '<div style="font-weight:bold; margin-bottom:4px;">' + title + '</div>';
+            }
 
             if (marker.displayUrl) {
                 var linkLabel = marker.displayLabel || defaultLinkLabel(marker.displayUrl);
@@ -1186,6 +1199,7 @@
                     displayUrl: '',
                     displayLabel: '',
                     openInNewTab: true,
+                    hidePopupTitle: false,
                     labelOffsetX: 0,
                     labelOffsetY: 0,
                     labelPositionSaved: false
@@ -1330,7 +1344,8 @@
                 scope.config.MarkerEditTitle !== oldConfig.MarkerEditTitle ||
                 scope.config.MarkerEditDisplayUrl !== oldConfig.MarkerEditDisplayUrl ||
                 scope.config.MarkerEditDisplayLabel !== oldConfig.MarkerEditDisplayLabel ||
-                scope.config.MarkerEditOpenInNewTab !== oldConfig.MarkerEditOpenInNewTab;
+                scope.config.MarkerEditOpenInNewTab !== oldConfig.MarkerEditOpenInNewTab ||
+                scope.config.MarkerEditHidePopupTitle !== oldConfig.MarkerEditHidePopupTitle;
 
             if (viewChanged) {
                 updateViewFromConfig();
