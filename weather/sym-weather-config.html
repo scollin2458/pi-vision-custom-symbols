@@ -1,0 +1,35 @@
+<br/>
+
+<div class="c-side-pane t-toolbar" style="margin-top:0px;">
+    <span style="color:#fff; margin-left:10px;">Weather source</span>
+</div>
+
+<div style="margin: 10px 8px 0 8px;">
+    <div style="margin-bottom:4px;">City</div>
+    <input type="text"
+           ng-model="config.CityQuery"
+           placeholder="Montreal, Quebec, Canada"
+           style="width:360px;">
+
+    <div style="margin-top:8px; color:#666; line-height:1.45;">
+        Enter a city, region, or country name. The symbol uses Open-Meteo geocoding to find the matching location.
+    </div>
+</div>
+
+<div class="c-side-pane t-toolbar" style="margin-top:14px;">
+    <span style="color:#fff; margin-left:10px;">Refresh</span>
+</div>
+
+<div style="margin: 10px 8px 0 8px;">
+    <div style="margin-bottom:4px;">Refresh interval (minutes)</div>
+    <input type="number"
+           ng-model="config.RefreshMinutes"
+           min="5"
+           max="240"
+           step="5"
+           style="width:360px;">
+
+    <div style="margin-top:8px; color:#666; line-height:1.45;">
+        Weather data is refreshed automatically at this interval and also whenever the configuration changes.
+    </div>
+</div>
