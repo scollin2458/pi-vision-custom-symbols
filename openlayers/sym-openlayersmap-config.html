@@ -1,0 +1,175 @@
+<br/>
+
+<div class="c-side-pane t-toolbar" style="margin-top:0px;">
+    <span style="color:#fff; margin-left:10px;">Map</span>
+</div>
+
+<div style="margin: 10px 8px 0 8px;">
+    <div style="margin-bottom:4px;">Center longitude</div>
+    <input type="number" step="0.01" ng-model="config.CenterLon" style="width:360px;">
+
+    <div style="margin-top:10px; margin-bottom:4px;">Center latitude</div>
+    <input type="number" step="0.01" ng-model="config.CenterLat" style="width:360px;">
+
+    <div style="display:flex; gap:10px; margin-top:10px;">
+        <div style="flex:1;">
+            <div style="margin-bottom:4px;">Zoom</div>
+            <input type="number" ng-model="config.Zoom" style="width:100%;">
+        </div>
+        <div style="flex:1;">
+            <div style="margin-bottom:4px;">Min zoom</div>
+            <input type="number" ng-model="config.MinZoom" style="width:100%;">
+        </div>
+        <div style="flex:1;">
+            <div style="margin-bottom:4px;">Max zoom</div>
+            <input type="number" ng-model="config.MaxZoom" style="width:100%;">
+        </div>
+    </div>
+
+    <div style="margin-top:10px;">
+        <button
+            ng-click="config.UseCurrentViewTrigger = (config.UseCurrentViewTrigger || 0) + 1"
+            style="min-width:190px; height:28px; border:1px solid #7f9db9; background:#f3f3f3; color:#000; cursor:pointer; padding:3px 12px;">
+            Use current view as default
+        </button>
+    </div>
+
+    <div style="margin-top:10px;">
+        <label>
+            <input type="checkbox" ng-model="config.LockMap">
+            Lock map
+        </label>
+    </div>
+</div>
+
+<div class="c-side-pane t-toolbar" style="margin-top:14px;">
+    <span style="color:#fff; margin-left:10px;">Markers</span>
+</div>
+
+<div style="margin: 10px 8px 0 8px;">
+    <div>
+        <label>
+            <input type="checkbox" ng-model="config.EnableMarkers">
+            Enable click-to-add markers
+        </label>
+    </div>
+
+    <div style="margin-top:10px; margin-bottom:4px;">Marker scale</div>
+    <input type="number" step="0.1" min="0.2" max="5" ng-model="config.MarkerScale" style="width:360px;">
+
+    <div style="margin-top:10px; margin-bottom:4px;">Selected marker scale</div>
+    <input type="number" step="0.1" min="0.2" max="5" ng-model="config.SelectedMarkerScale" style="width:360px;">
+
+    <div style="margin-top:10px;">
+        <button
+            ng-click="config.ToggleSelectAllMarkersTrigger = (config.ToggleSelectAllMarkersTrigger || 0) + 1"
+            style="min-width:190px; height:28px; border:1px solid #7f9db9; background:#f3f3f3; color:#000; cursor:pointer; padding:3px 12px;">
+            {{ config.SelectedMarkerIndex == -2 ? 'Deselect all markers' : 'Select all markers' }}
+        </button>
+    </div>
+
+    <div style="margin-top:8px;">
+        <button
+            ng-click="config.DeleteSelectedMarkerTrigger = (config.DeleteSelectedMarkerTrigger || 0) + 1"
+            ng-disabled="config.SelectedMarkerIndex < 0 || config.SelectedMarkerIndex == -2"
+            ng-style="(config.SelectedMarkerIndex < 0 || config.SelectedMarkerIndex == -2) ? {'opacity':'0.5','cursor':'default'} : {'opacity':'1','cursor':'pointer'}"
+            style="min-width:190px; height:28px; border:1px solid #7f9db9; background:#f3f3f3; color:#000; padding:3px 12px;">
+            Delete selected marker
+        </button>
+    </div>
+
+    <div style="margin-top:8px;">
+        <button
+            ng-click="config.Markers = []; config.SelectedMarkerIndex = -1; config.MarkerEditTitle = ''; config.MarkerEditDisplayUrl = ''; config.MarkerEditDisplayLabel = ''; config.MarkerEditOpenInNewTab = true"
+            style="min-width:190px; height:28px; border:1px solid #7f9db9; background:#f3f3f3; color:#000; cursor:pointer; padding:3px 12px;">
+            Clear all markers
+        </button>
+    </div>
+
+    <div style="margin-top:8px;">
+        <button
+            ng-click="config.SaveLabelPositionsTrigger = (config.SaveLabelPositionsTrigger || 0) + 1"
+            ng-disabled="config.SelectedMarkerIndex != -2"
+            ng-style="config.SelectedMarkerIndex != -2 ? {'opacity':'0.5','cursor':'default'} : {'opacity':'1','cursor':'pointer'}"
+            style="min-width:190px; height:28px; border:1px solid #7f9db9; background:#f3f3f3; color:#000; padding:3px 12px;">
+            Save label positions
+        </button>
+    </div>
+
+    <div style="margin-top:8px;">
+        <button
+            ng-click="config.ResetLabelPositionsTrigger = (config.ResetLabelPositionsTrigger || 0) + 1"
+            ng-disabled="config.SelectedMarkerIndex != -2"
+            ng-style="config.SelectedMarkerIndex != -2 ? {'opacity':'0.5','cursor':'default'} : {'opacity':'1','cursor':'pointer'}"
+            style="min-width:190px; height:28px; border:1px solid #7f9db9; background:#f3f3f3; color:#000; padding:3px 12px;">
+            Reset label positions
+        </button>
+    </div>
+
+    <div style="margin-top:10px; color:#666;">
+        In "Select all markers" mode, labels can be dragged without affecting selection.
+    </div>
+</div>
+
+<div class="c-side-pane t-toolbar" style="margin-top:14px;">
+    <span style="color:#fff; margin-left:10px;">Selected marker</span>
+</div>
+
+<div style="margin: 10px 8px 0 8px;">
+    <div style="margin-bottom:4px;">Popup title</div>
+    <input type="text" ng-model="config.MarkerEditTitle" style="width:360px;">
+
+    <div style="margin-top:10px; margin-bottom:4px;">PI Vision display URL</div>
+    <input type="text" ng-model="config.MarkerEditDisplayUrl" style="width:360px;">
+
+    <div style="margin-top:10px; margin-bottom:4px;">Popup link label</div>
+    <input type="text" ng-model="config.MarkerEditDisplayLabel" style="width:360px;">
+
+    <div style="margin-top:10px;">
+        <label>
+            <input type="radio" ng-model="config.MarkerEditOpenInNewTab" ng-value="true">
+            Open in new tab
+        </label>
+    </div>
+
+    <div style="margin-top:6px;">
+        <label>
+            <input type="radio" ng-model="config.MarkerEditOpenInNewTab" ng-value="false">
+            Open in same tab
+        </label>
+    </div>
+
+    <div style="margin-top:10px;">
+        <button
+            ng-click="config.SaveSelectedMarkerTrigger = (config.SaveSelectedMarkerTrigger || 0) + 1"
+            ng-disabled="config.SelectedMarkerIndex < 0 || config.SelectedMarkerIndex == -2"
+            ng-style="(config.SelectedMarkerIndex < 0 || config.SelectedMarkerIndex == -2) ? {'opacity':'0.5','cursor':'default'} : {'opacity':'1','cursor':'pointer'}"
+            style="min-width:190px; height:28px; border:1px solid #7f9db9; background:#f3f3f3; color:#000; padding:3px 12px;">
+            Save selected marker
+        </button>
+    </div>
+
+    <div style="margin-top:10px; color:#666;">
+        Set a custom popup title, link label, and target behavior for the selected marker.
+    </div>
+</div>
+
+<div class="c-side-pane t-toolbar" style="margin-top:14px;">
+    <span style="color:#fff; margin-left:10px;">Controls</span>
+</div>
+
+<div style="margin: 10px 8px 0 8px;">
+    <div>
+        <label>
+            <input type="checkbox" ng-model="config.ShowZoomControl">
+            Show zoom control
+        </label>
+    </div>
+
+    <div style="margin-top:8px;">
+        <label>
+            <input type="checkbox" ng-model="config.ShowAttribution">
+            Show attribution
+        </label>
+    </div>
+</div>

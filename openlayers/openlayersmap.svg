@@ -1,0 +1,18 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Map background -->
+  <rect x="6" y="10" width="52" height="40" rx="4" ry="4" fill="#e6f2ff" stroke="#4a90e2" stroke-width="2"></rect>
+
+  <!-- Fold lines (map look) -->
+  <path d="M22 10 V50" stroke="#4a90e2" stroke-width="1.5" stroke-dasharray="2,2"></path>
+  <path d="M42 10 V50" stroke="#4a90e2" stroke-width="1.5" stroke-dasharray="2,2"></path>
+
+  <!-- Marker -->
+  <path d="M32 22
+           C28 22, 25 25, 25 29
+           C25 34, 32 42, 32 42
+           C32 42, 39 34, 39 29
+           C39 25, 36 22, 32 22 Z" fill="#e74c3c"></path>
+
+  <!-- Marker center -->
+  <circle cx="32" cy="29" r="2.5" fill="#ffffff"></circle>
+</svg>
