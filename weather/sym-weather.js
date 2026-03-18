@@ -15,7 +15,7 @@
                 DataShape: 'Value',
                 Height: 320,
                 Width: 360,
-                CityQuery: 'Montreal',
+                CityQuery: 'Quebec',
                 RefreshMinutes: 30
             };
         },
@@ -68,7 +68,7 @@
         }
 
         function ensureConfig() {
-            scope.config.CityQuery = safeString(scope.config.CityQuery) || 'Montreal';
+            scope.config.CityQuery = safeString(scope.config.CityQuery) || 'Quebec';
             scope.config.RefreshMinutes = clamp(scope.config.RefreshMinutes, 5, 240, 30);
         }
 

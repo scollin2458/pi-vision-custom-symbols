@@ -19,7 +19,7 @@ The symbol uses the Open-Meteo public APIs to:
 
 ## Configuration options
 
-- **City**: city, region, or country text used for geocoding. Default: `Montreal, Quebec, Canada`.
+- **City**: city name used for geocoding. Default: `Quebec`.
 - **Refresh interval (minutes)**: automatic refresh period for the weather data. Default: `30` minutes.
 
 ## External services
