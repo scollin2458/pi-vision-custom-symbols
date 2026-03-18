@@ -7,7 +7,7 @@
     var definition = {
         typeName: 'weather',
         displayName: 'Weather',
-        iconUrl: '/Scripts/app/editor/symbols/ext/weather/weather.svg',
+        iconUrl: '/Scripts/app/editor/symbols/ext/Icons/weather.svg',
         visObjectType: symbolVis,
         datasourceBehavior: PV.Extensibility.Enums.DatasourceBehaviors.Single,
         getDefaultConfig: function () {
@@ -15,7 +15,7 @@
                 DataShape: 'Value',
                 Height: 320,
                 Width: 360,
-                CityQuery: 'Montreal, Quebec, Canada',
+                CityQuery: 'Montreal',
                 RefreshMinutes: 30
             };
         },
@@ -68,7 +68,7 @@
         }
 
         function ensureConfig() {
-            scope.config.CityQuery = safeString(scope.config.CityQuery) || 'Montreal, Quebec, Canada';
+            scope.config.CityQuery = safeString(scope.config.CityQuery) || 'Montreal';
             scope.config.RefreshMinutes = clamp(scope.config.RefreshMinutes, 5, 240, 30);
         }
 
