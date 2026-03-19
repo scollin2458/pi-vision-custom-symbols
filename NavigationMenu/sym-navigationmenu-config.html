@@ -10,7 +10,6 @@
 <div ng-if="config.SelectedButtonIndex === undefined || config.SelectedButtonIndex === null" style="display:none">
   {{ config.SelectedButtonIndex = 0 }}
 </div>
-
 <!-- ========== Behavior ========== -->
 <div class="c-side-pane t-toolbar" style="margin-top:0px;">
   <span style="color:#fff; margin-left:10px;">Behavior</span>
@@ -18,7 +17,7 @@
 
 <div style="margin: 10px 8px 0 8px;">
   <div style="margin-bottom:4px;">Open links</div>
-  <select ng-model="config.OpenMode" style="width: 360px;">
+  <select ng-model="config.OpenMode" style="width: 180px;">
     <option value="SameTab">Same tab</option>
     <option value="NewTab">New tab</option>
     <option value="Popup">Popup</option>
@@ -45,7 +44,7 @@
 
 <div style="margin: 10px 8px 0 8px;">
   <div style="margin-bottom:4px;">Orientation</div>
-  <select ng-model="config.Orientation" style="width: 360px;">
+  <select ng-model="config.Orientation" style="width: 180px;">
     <option value="Vertical">Vertical</option>
     <option value="Horizontal">Horizontal</option>
   </select>
@@ -98,7 +97,7 @@
 
 <div style="margin: 10px 8px 0 8px;">
   <div style="margin-bottom:4px;">Default label mode</div>
-  <select ng-model="config.DefaultLabelMode" style="width: 360px;">
+  <select ng-model="config.DefaultLabelMode" style="width: 180px;">
     <option value="None">None</option>
     <option value="Element">Element</option>
     <option value="Attribute">Attribute</option>
@@ -115,20 +114,14 @@
   <select ng-if="config._buttonItems && config._buttonItems.length"
           ng-model="config.SelectedButtonIndex"
           ng-options="b.index as b.name for b in config._buttonItems track by b.index"
-          ng-change="
-            config._selectedKey = config._buttonItems[config.SelectedButtonIndex].key;
-            config.ButtonLabelSettings[config._selectedKey] = config.ButtonLabelSettings[config._selectedKey] || { LabelMode: '__DEFAULT__', CustomLabel: '' };
-            config.ButtonIconSettings[config._selectedKey] = config.ButtonIconSettings[config._selectedKey] || { IconType: 'None' };
-          "
-          style="width: 360px;">
+          style="width: 180px;">
   </select>
 
-  <!-- Init selectedKey -->
   <div ng-if="config._buttonItems && config._buttonItems.length && !config._selectedKey" style="display:none">
     {{
       config._selectedKey = config._buttonItems[config.SelectedButtonIndex].key;
       config.ButtonLabelSettings[config._selectedKey] = config.ButtonLabelSettings[config._selectedKey] || { LabelMode: '__DEFAULT__', CustomLabel: '' };
-      config.ButtonIconSettings[config._selectedKey] = config.ButtonIconSettings[config._selectedKey] || { IconType: 'None' };
+      config.ButtonIconSettings[config._selectedKey] = config.ButtonIconSettings[config._selectedKey] || { IconType: 'None', IconSizePx: config.IconSizePx || 18 };
     }}
   </div>
 
@@ -136,12 +129,10 @@
     Editing: <b>{{ 'Button ' + (config.SelectedButtonIndex + 1) }}</b>
   </div>
 
-  <!-- Indented per-button settings -->
   <div style="margin-left: 18px; margin-top: 10px;">
-
     <div style="margin-bottom:4px;">Label mode</div>
-    <select ng-model="config.ButtonLabelSettings[config._selectedKey].LabelMode"
-            style="width: 342px;">
+    <select ng-model="config.ButtonEditorLabelMode"
+            style="width: 171px;">
       <option value="__DEFAULT__">(use default)</option>
       <option value="None">None</option>
       <option value="Element">Element</option>
@@ -151,14 +142,14 @@
     </select>
 
     <div style="margin-top:10px; margin-bottom:4px;">Custom label</div>
-    <input type="text" style="width: 342px;"
-           ng-model="config.ButtonLabelSettings[config._selectedKey].CustomLabel"
-           ng-disabled="config.ButtonLabelSettings[config._selectedKey].LabelMode !== 'Custom'"
+    <input type="text" style="width: 171px;"
+           ng-model="config.ButtonEditorCustomLabel"
+           ng-disabled="config.ButtonEditorLabelMode !== 'Custom'"
            placeholder="Overview">
 
     <div style="margin-top:10px; margin-bottom:4px;">Icon for this button</div>
-    <select ng-model="config.ButtonIconSettings[config._selectedKey].IconType"
-            style="width: 342px;">
+    <select ng-model="config.ButtonEditorIconType"
+            style="width: 171px;">
       <option value="None">None</option>
       <option value="Home">Home</option>
       <option value="Factory">Factory</option>
@@ -170,9 +161,14 @@
       <option value="Wrench">Wrench</option>
     </select>
 
-    <div style="margin-top:10px; margin-bottom:4px;">Icon size (px) <span style="opacity:0.75;">(12–48)</span></div>
-    <input type="number" ng-model="config.IconSizePx"
-           style="width: 342px;"
-           min="12" max="48" step="1">
+    <div style="margin-top:10px; margin-bottom:4px;">Icon size (px) <span style="opacity:0.75;">(12-48, checked on save)</span></div>
+    <input type="text" ng-model="config.ButtonEditorIconSizeInput"
+           style="width: 171px;">
+
+    <button type="button"
+            ng-click="config.SaveSelectedButtonTrigger = (config.SaveSelectedButtonTrigger || 0) + 1"
+            style="margin-top:12px; min-width:95px; width:171px; height:28px; border:1px solid #7f9db9; background:#f3f3f3; color:#000; cursor:pointer; padding:3px 12px;">
+      Save to button
+    </button>
   </div>
 </div>

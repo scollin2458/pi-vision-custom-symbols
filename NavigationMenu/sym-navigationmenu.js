@@ -53,11 +53,17 @@
         // Icons / Logos (per button)
         ButtonIconSettings: {},               // keyed by normalized key, e.g. { "Plant|URL": { IconType:"Home" } }
         IconSizePx: 18,                       // clamped in JS
+        SaveSelectedButtonTrigger: 0,
+        ButtonEditorLabelMode: '__DEFAULT__',
+        ButtonEditorCustomLabel: '',
+        ButtonEditorIconType: 'None',
+        ButtonEditorIconSizeInput: '18',
 
         // Internal (for config pane)
         _datasourceList: [],
         _buttonItems: [],
         _selectedKey: '',
+        _editorLoadedKey: '',
 
         // Style (global)
         ShowBorder: false,
@@ -159,6 +165,30 @@
       if (!scope.config.ButtonIconSettings) scope.config.ButtonIconSettings = {};
     }
 
+    function createDefaultLabelSettings() {
+      return { LabelMode: '__DEFAULT__', CustomLabel: '' };
+    }
+
+    function createDefaultIconSettings() {
+      return { IconType: 'None', IconSizePx: clampInt(scope.config.IconSizePx, 12, 48, 18) };
+    }
+
+    function ensureEditorState() {
+      if (scope.config.ButtonEditorLabelMode === undefined || scope.config.ButtonEditorLabelMode === null) {
+        scope.config.ButtonEditorLabelMode = '__DEFAULT__';
+      }
+      if (scope.config.ButtonEditorCustomLabel === undefined || scope.config.ButtonEditorCustomLabel === null) {
+        scope.config.ButtonEditorCustomLabel = '';
+      }
+      if (scope.config.ButtonEditorIconType === undefined || scope.config.ButtonEditorIconType === null) {
+        scope.config.ButtonEditorIconType = 'None';
+      }
+      if (scope.config.ButtonEditorIconSizeInput === undefined || scope.config.ButtonEditorIconSizeInput === null) {
+        scope.config.ButtonEditorIconSizeInput = '' + clampInt(scope.config.IconSizePx, 12, 48, 18);
+      }
+      scope.config.SaveSelectedButtonTrigger = parseInt(scope.config.SaveSelectedButtonTrigger || 0, 10);
+    }
+
     function getPerButtonLabelSettings(key) {
       ensureMaps();
       return scope.config.ButtonLabelSettings[key] || null;
@@ -220,17 +250,85 @@
 
         // Ensure objects exist for this key
         if (!scope.config.ButtonLabelSettings[scope.config._selectedKey]) {
-          scope.config.ButtonLabelSettings[scope.config._selectedKey] = { LabelMode: '__DEFAULT__', CustomLabel: '' };
+          scope.config.ButtonLabelSettings[scope.config._selectedKey] = createDefaultLabelSettings();
         }
         if (!scope.config.ButtonIconSettings[scope.config._selectedKey]) {
-          scope.config.ButtonIconSettings[scope.config._selectedKey] = { IconType: 'None' };
+          scope.config.ButtonIconSettings[scope.config._selectedKey] = createDefaultIconSettings();
         }
       } else {
         scope.config._selectedKey = '';
       }
 
-      // Clamp icon size globally
       scope.config.IconSizePx = clampInt(scope.config.IconSizePx, 12, 48, 18);
+      ensureEditorState();
+    }
+
+    function loadSelectedButtonIntoEditor(forceReload) {
+      var key = safeString(scope.config._selectedKey);
+
+      if (!key) {
+        ensureEditorState();
+        scope.config.ButtonEditorLabelMode = '__DEFAULT__';
+        scope.config.ButtonEditorCustomLabel = '';
+        scope.config.ButtonEditorIconType = 'None';
+        scope.config.ButtonEditorIconSizeInput = '' + clampInt(scope.config.IconSizePx, 12, 48, 18);
+        scope.config._editorLoadedKey = '';
+        return;
+      }
+
+      if (!forceReload && scope.config._editorLoadedKey === key) {
+        return;
+      }
+
+      ensureMaps();
+
+      var labelSettings = getPerButtonLabelSettings(key) || createDefaultLabelSettings();
+      var iconSettings = getPerButtonIconSettings(key) || createDefaultIconSettings();
+
+      ensureEditorState();
+      scope.config.ButtonEditorLabelMode = labelSettings.LabelMode || '__DEFAULT__';
+      scope.config.ButtonEditorCustomLabel = safeString(labelSettings.CustomLabel);
+      scope.config.ButtonEditorIconType = iconSettings.IconType || 'None';
+      scope.config.ButtonEditorIconSizeInput = '' + clampInt(iconSettings.IconSizePx, 12, 48, scope.config.IconSizePx);
+      scope.config._editorLoadedKey = key;
+    }
+
+    function parseSavedIconSize(rawValue, fallbackValue) {
+      var raw = safeString(rawValue);
+      var fallback = clampInt(fallbackValue, 12, 48, 18);
+
+      if (!raw) return fallback;
+      if (!/^\d+$/.test(raw)) return fallback;
+
+      var parsed = parseInt(raw, 10);
+      if (isNaN(parsed) || parsed < 0) return fallback;
+      if (parsed < 12) return 12;
+      if (parsed > 48) return 48;
+      return parsed;
+    }
+
+    function saveEditorIntoSelectedButton() {
+      var key = safeString(scope.config._selectedKey);
+      if (!key) return;
+
+      ensureMaps();
+      ensureEditorState();
+
+      var currentIconSettings = getPerButtonIconSettings(key) || createDefaultIconSettings();
+      var savedIconSize = parseSavedIconSize(scope.config.ButtonEditorIconSizeInput, currentIconSettings.IconSizePx);
+
+      scope.config.ButtonLabelSettings[key] = {
+        LabelMode: scope.config.ButtonEditorLabelMode || '__DEFAULT__',
+        CustomLabel: safeString(scope.config.ButtonEditorCustomLabel)
+      };
+
+      scope.config.ButtonIconSettings[key] = {
+        IconType: scope.config.ButtonEditorIconType || 'None',
+        IconSizePx: savedIconSize
+      };
+
+      scope.config.ButtonEditorIconSizeInput = '' + savedIconSize;
+      scope.config._editorLoadedKey = key;
     }
 
     function shouldKeep(item) {
@@ -297,8 +395,8 @@
       Wrench:  'M22 19.59l-6.3-6.3a5.5 5.5 0 01-7.4-7.4l3.1 3.1 2.1-2.1-3.1-3.1a5.5 5.5 0 017.4 7.4l6.3 6.3L22 19.59z'
     };
 
-    function makeIconNode(iconType) {
-      var size = clampInt(scope.config.IconSizePx, 12, 48, 18);
+    function makeIconNode(iconType, sizePx) {
+      var size = clampInt(sizePx, 12, 48, 18);
       var color = scope.config.ItemTextColor || '#ffffff';
 
       if (!iconType || iconType === 'None') return null;
@@ -389,7 +487,8 @@
         // icon (per-button)
         var iconSettings = getPerButtonIconSettings(item.key);
         var iconType = iconSettings ? (iconSettings.IconType || 'None') : 'None';
-        var iconNode = makeIconNode(iconType);
+        var iconSize = iconSettings ? iconSettings.IconSizePx : scope.config.IconSizePx;
+        var iconNode = makeIconNode(iconType, iconSize);
         if (iconNode) btn.appendChild(iconNode);
 
         // label (possibly blank if mode None)
@@ -440,6 +539,7 @@
 
     function onDataUpdate(data) {
       syncDatasourcesToConfig();
+      loadSelectedButtonIntoEditor(false);
 
       var rows = null;
       if (data && Array.isArray(data.Rows)) rows = data.Rows;
@@ -468,6 +568,7 @@
 
     function onConfigChange() {
       syncDatasourcesToConfig();
+      loadSelectedButtonIntoEditor(false);
 
       Object.keys(state.itemsByKey).forEach(function (k) {
         var it = state.itemsByKey[k];
@@ -499,9 +600,19 @@
     scope.$watch('config.ItemPaddingYpx', function (n, o) { if (n !== o) applyFromWatch(); });
     scope.$watch('config.ItemPaddingXpx', function (n, o) { if (n !== o) applyFromWatch(); });
     scope.$watch('config.IconSizePx', function (n, o) { if (n !== o) applyFromWatch(); });
+    scope.$watch('config.SelectedButtonIndex', function (n, o) {
+      if (n !== o) loadSelectedButtonIntoEditor(true);
+    });
+    scope.$watch('config.SaveSelectedButtonTrigger', function (n, o) {
+      if (n !== o) {
+        saveEditorIntoSelectedButton();
+        applyFromWatch();
+      }
+    });
 
     // Initial
     syncDatasourcesToConfig();
+    loadSelectedButtonIntoEditor(true);
   };
 
   PV.symbolCatalog.register(definition);
