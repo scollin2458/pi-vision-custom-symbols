@@ -52,12 +52,15 @@
 
         // Icons / Logos (per button)
         ButtonIconSettings: {},               // keyed by normalized key, e.g. { "Plant|URL": { IconType:"Home" } }
+        ButtonSizeSettings: {},               // keyed by normalized key, e.g. { "Plant|URL": { WidthPx: 180, HeightPx: 42 } }
         IconSizePx: 18,                       // clamped in JS
         SaveSelectedButtonTrigger: 0,
         ButtonEditorLabelMode: '__DEFAULT__',
         ButtonEditorCustomLabel: '',
         ButtonEditorIconType: 'None',
         ButtonEditorIconSizeInput: '18',
+        ButtonEditorWidthPx: '',
+        ButtonEditorHeightPx: '',
 
         // Internal (for config pane)
         _datasourceList: [],
@@ -71,7 +74,9 @@
         BorderWidthPx: 1,
         BorderRadiusPx: 6,
 
+        ButtonFillStyle: 'Normal',
         ItemBackground: '#2b2f3a',
+        ItemBackgroundAccent: '#485063',
         ItemBackgroundHover: '#3a4050',
         ItemTextColor: '#ffffff',
         FontSizePx: 14,
@@ -163,6 +168,7 @@
     function ensureMaps() {
       if (!scope.config.ButtonLabelSettings) scope.config.ButtonLabelSettings = {};
       if (!scope.config.ButtonIconSettings) scope.config.ButtonIconSettings = {};
+      if (!scope.config.ButtonSizeSettings) scope.config.ButtonSizeSettings = {};
     }
 
     function createDefaultLabelSettings() {
@@ -171,6 +177,10 @@
 
     function createDefaultIconSettings() {
       return { IconType: 'None', IconSizePx: clampInt(scope.config.IconSizePx, 12, 48, 18) };
+    }
+
+    function createDefaultSizeSettings() {
+      return { WidthPx: '', HeightPx: '' };
     }
 
     function ensureEditorState() {
@@ -186,7 +196,19 @@
       if (scope.config.ButtonEditorIconSizeInput === undefined || scope.config.ButtonEditorIconSizeInput === null) {
         scope.config.ButtonEditorIconSizeInput = '' + clampInt(scope.config.IconSizePx, 12, 48, 18);
       }
+      if (scope.config.ButtonEditorWidthPx === undefined || scope.config.ButtonEditorWidthPx === null) {
+        scope.config.ButtonEditorWidthPx = '';
+      }
+      if (scope.config.ButtonEditorHeightPx === undefined || scope.config.ButtonEditorHeightPx === null) {
+        scope.config.ButtonEditorHeightPx = '';
+      }
       scope.config.SaveSelectedButtonTrigger = parseInt(scope.config.SaveSelectedButtonTrigger || 0, 10);
+      if (!scope.config.ButtonFillStyle) {
+        scope.config.ButtonFillStyle = 'Normal';
+      }
+      if (!scope.config.ItemBackgroundAccent) {
+        scope.config.ItemBackgroundAccent = '#485063';
+      }
     }
 
     function getPerButtonLabelSettings(key) {
@@ -197,6 +219,11 @@
     function getPerButtonIconSettings(key) {
       ensureMaps();
       return scope.config.ButtonIconSettings[key] || null;
+    }
+
+    function getPerButtonSizeSettings(key) {
+      ensureMaps();
+      return scope.config.ButtonSizeSettings[key] || null;
     }
 
     function computeLabel(key, sourcePathForFallback) {
@@ -255,6 +282,9 @@
         if (!scope.config.ButtonIconSettings[scope.config._selectedKey]) {
           scope.config.ButtonIconSettings[scope.config._selectedKey] = createDefaultIconSettings();
         }
+        if (!scope.config.ButtonSizeSettings[scope.config._selectedKey]) {
+          scope.config.ButtonSizeSettings[scope.config._selectedKey] = createDefaultSizeSettings();
+        }
       } else {
         scope.config._selectedKey = '';
       }
@@ -272,6 +302,8 @@
         scope.config.ButtonEditorCustomLabel = '';
         scope.config.ButtonEditorIconType = 'None';
         scope.config.ButtonEditorIconSizeInput = '' + clampInt(scope.config.IconSizePx, 12, 48, 18);
+        scope.config.ButtonEditorWidthPx = '';
+        scope.config.ButtonEditorHeightPx = '';
         scope.config._editorLoadedKey = '';
         return;
       }
@@ -284,12 +316,15 @@
 
       var labelSettings = getPerButtonLabelSettings(key) || createDefaultLabelSettings();
       var iconSettings = getPerButtonIconSettings(key) || createDefaultIconSettings();
+      var sizeSettings = getPerButtonSizeSettings(key) || createDefaultSizeSettings();
 
       ensureEditorState();
       scope.config.ButtonEditorLabelMode = labelSettings.LabelMode || '__DEFAULT__';
       scope.config.ButtonEditorCustomLabel = safeString(labelSettings.CustomLabel);
       scope.config.ButtonEditorIconType = iconSettings.IconType || 'None';
       scope.config.ButtonEditorIconSizeInput = '' + clampInt(iconSettings.IconSizePx, 12, 48, scope.config.IconSizePx);
+      scope.config.ButtonEditorWidthPx = sizeSettings.WidthPx === '' ? '' : safeString(sizeSettings.WidthPx);
+      scope.config.ButtonEditorHeightPx = sizeSettings.HeightPx === '' ? '' : safeString(sizeSettings.HeightPx);
       scope.config._editorLoadedKey = key;
     }
 
@@ -307,6 +342,18 @@
       return parsed;
     }
 
+    function parseSavedButtonDimension(rawValue, fallbackValue) {
+      var raw = safeString(rawValue);
+      var fallback = (fallbackValue === '' || fallbackValue === null || fallbackValue === undefined) ? '' : parseInt(fallbackValue, 10);
+
+      if (!raw) return '';
+      if (!/^\d+$/.test(raw)) return fallback === '' || isNaN(fallback) ? '' : fallback;
+
+      var parsed = parseInt(raw, 10);
+      if (isNaN(parsed) || parsed <= 0) return fallback === '' || isNaN(fallback) ? '' : fallback;
+      return parsed;
+    }
+
     function saveEditorIntoSelectedButton() {
       var key = safeString(scope.config._selectedKey);
       if (!key) return;
@@ -315,7 +362,10 @@
       ensureEditorState();
 
       var currentIconSettings = getPerButtonIconSettings(key) || createDefaultIconSettings();
+      var currentSizeSettings = getPerButtonSizeSettings(key) || createDefaultSizeSettings();
       var savedIconSize = parseSavedIconSize(scope.config.ButtonEditorIconSizeInput, currentIconSettings.IconSizePx);
+      var savedWidth = parseSavedButtonDimension(scope.config.ButtonEditorWidthPx, currentSizeSettings.WidthPx);
+      var savedHeight = parseSavedButtonDimension(scope.config.ButtonEditorHeightPx, currentSizeSettings.HeightPx);
 
       scope.config.ButtonLabelSettings[key] = {
         LabelMode: scope.config.ButtonEditorLabelMode || '__DEFAULT__',
@@ -327,7 +377,14 @@
         IconSizePx: savedIconSize
       };
 
+      scope.config.ButtonSizeSettings[key] = {
+        WidthPx: savedWidth,
+        HeightPx: savedHeight
+      };
+
       scope.config.ButtonEditorIconSizeInput = '' + savedIconSize;
+      scope.config.ButtonEditorWidthPx = savedWidth === '' ? '' : '' + savedWidth;
+      scope.config.ButtonEditorHeightPx = savedHeight === '' ? '' : '' + savedHeight;
       scope.config._editorLoadedKey = key;
     }
 
@@ -407,6 +464,22 @@
       return makeSvg(size, color, d);
     }
 
+    function getButtonBaseBackground() {
+      var style = scope.config.ButtonFillStyle || 'Normal';
+      var color1 = scope.config.ItemBackground || '#2b2f3a';
+      var color2 = scope.config.ItemBackgroundAccent || color1;
+
+      if (style === 'GradientHorizontal') {
+        return 'linear-gradient(90deg, ' + color1 + ' 0%, ' + color2 + ' 50%, ' + color1 + ' 100%)';
+      }
+
+      if (style === 'GradientVertical') {
+        return 'linear-gradient(180deg, ' + color1 + ' 0%, ' + color2 + ' 50%, ' + color1 + ' 100%)';
+      }
+
+      return color1;
+    }
+
     // ---------- navigation ----------
     function handleNavigate(url) {
       var mode = scope.config.OpenMode || 'SameTab';
@@ -462,6 +535,11 @@
 
       items.forEach(function (item) {
         var btn = document.createElement('div');
+        var sizeSettings = getPerButtonSizeSettings(item.key) || createDefaultSizeSettings();
+        var widthPx = sizeSettings.WidthPx;
+        var heightPx = sizeSettings.HeightPx;
+        var baseBackground = getButtonBaseBackground();
+
         btn.style.display = 'flex';
         btn.style.alignItems = 'center';
         btn.style.justifyContent = (scope.config.Orientation === 'Horizontal') ? 'center' : 'flex-start';
@@ -469,7 +547,7 @@
         // fixed gap (since you want to remove Icon gap option)
         btn.style.gap = '8px';
 
-        btn.style.background = scope.config.ItemBackground;
+        btn.style.background = baseBackground;
         btn.style.color = scope.config.ItemTextColor;
         btn.style.fontSize = (scope.config.FontSizePx || 14) + 'px';
         btn.style.padding =
@@ -483,6 +561,13 @@
 
         btn.style.whiteSpace = 'nowrap';
         btn.style.overflow = 'hidden';
+
+        if (widthPx !== '' && widthPx !== null && widthPx !== undefined) {
+          btn.style.width = widthPx + 'px';
+        }
+        if (heightPx !== '' && heightPx !== null && heightPx !== undefined) {
+          btn.style.height = heightPx + 'px';
+        }
 
         // icon (per-button)
         var iconSettings = getPerButtonIconSettings(item.key);
@@ -507,7 +592,7 @@
         }
 
         btn.addEventListener('mouseenter', function () { btn.style.background = scope.config.ItemBackgroundHover; });
-        btn.addEventListener('mouseleave', function () { btn.style.background = scope.config.ItemBackground; });
+        btn.addEventListener('mouseleave', function () { btn.style.background = baseBackground; });
 
         btn.addEventListener('click', function () {
           if (!item.url) return;
@@ -515,8 +600,12 @@
         });
 
         if (scope.config.Orientation === 'Horizontal') {
-          btn.style.flex = '1 1 auto';
-          btn.style.minWidth = '80px';
+          if (widthPx !== '' && widthPx !== null && widthPx !== undefined) {
+            btn.style.flex = '0 0 auto';
+          } else {
+            btn.style.flex = '1 1 auto';
+            btn.style.minWidth = '80px';
+          }
         }
 
         container.appendChild(btn);
@@ -588,18 +677,21 @@
 
     scope.$watch('config.ButtonLabelSettings', function (n, o) { if (n !== o) applyFromWatch(); }, true);
     scope.$watch('config.ButtonIconSettings', function (n, o) { if (n !== o) applyFromWatch(); }, true);
+    scope.$watch('config.ButtonSizeSettings', function (n, o) { if (n !== o) applyFromWatch(); }, true);
 
     scope.$watch('config.DefaultLabelMode', function (n, o) { if (n !== o) applyFromWatch(); });
     scope.$watch('config.OpenMode', function (n, o) { if (n !== o) applyFromWatch(); });
     scope.$watch('config.Orientation', function (n, o) { if (n !== o) applyFromWatch(); });
 
     scope.$watch('config.ItemBackground', function (n, o) { if (n !== o) applyFromWatch(); });
+    scope.$watch('config.ItemBackgroundAccent', function (n, o) { if (n !== o) applyFromWatch(); });
     scope.$watch('config.ItemBackgroundHover', function (n, o) { if (n !== o) applyFromWatch(); });
     scope.$watch('config.ItemTextColor', function (n, o) { if (n !== o) applyFromWatch(); });
     scope.$watch('config.FontSizePx', function (n, o) { if (n !== o) applyFromWatch(); });
     scope.$watch('config.ItemPaddingYpx', function (n, o) { if (n !== o) applyFromWatch(); });
     scope.$watch('config.ItemPaddingXpx', function (n, o) { if (n !== o) applyFromWatch(); });
     scope.$watch('config.IconSizePx', function (n, o) { if (n !== o) applyFromWatch(); });
+    scope.$watch('config.ButtonFillStyle', function (n, o) { if (n !== o) applyFromWatch(); });
     scope.$watch('config.SelectedButtonIndex', function (n, o) {
       if (n !== o) loadSelectedButtonIntoEditor(true);
     });

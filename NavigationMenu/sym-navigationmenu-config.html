@@ -7,9 +7,13 @@
 <div ng-if="!config.ButtonIconSettings" style="display:none">
   {{ config.ButtonIconSettings = {} }}
 </div>
+<div ng-if="!config.ButtonSizeSettings" style="display:none">
+  {{ config.ButtonSizeSettings = {} }}
+</div>
 <div ng-if="config.SelectedButtonIndex === undefined || config.SelectedButtonIndex === null" style="display:none">
   {{ config.SelectedButtonIndex = 0 }}
 </div>
+
 <!-- ========== Behavior ========== -->
 <div class="c-side-pane t-toolbar" style="margin-top:0px;">
   <span style="color:#fff; margin-left:10px;">Behavior</span>
@@ -56,10 +60,21 @@
 </div>
 
 <div style="margin: 10px 8px 0 8px;">
-  <div style="display:flex; gap:10px;">
+  <div style="margin-bottom:4px;">Style</div>
+  <select ng-model="config.ButtonFillStyle" style="width: 180px;">
+    <option value="Normal">Normal</option>
+    <option value="GradientHorizontal">Gradient Horizontal</option>
+    <option value="GradientVertical">Gradient Vertical</option>
+  </select>
+
+  <div style="display:flex; gap:10px; margin-top:10px;">
     <div style="flex:1;">
-      <div style="margin-bottom:4px;">Button color</div>
+      <div style="margin-bottom:4px;">{{ config.ButtonFillStyle === 'Normal' ? 'Button color' : 'Button color 1' }}</div>
       <input type="color" ng-model="config.ItemBackground" style="width: 100%;">
+    </div>
+    <div style="flex:1;" ng-if="config.ButtonFillStyle !== 'Normal'">
+      <div style="margin-bottom:4px;">Button color 2</div>
+      <input type="color" ng-model="config.ItemBackgroundAccent" style="width: 100%;">
     </div>
     <div style="flex:1;">
       <div style="margin-bottom:4px;">Hover color</div>
@@ -122,6 +137,7 @@
       config._selectedKey = config._buttonItems[config.SelectedButtonIndex].key;
       config.ButtonLabelSettings[config._selectedKey] = config.ButtonLabelSettings[config._selectedKey] || { LabelMode: '__DEFAULT__', CustomLabel: '' };
       config.ButtonIconSettings[config._selectedKey] = config.ButtonIconSettings[config._selectedKey] || { IconType: 'None', IconSizePx: config.IconSizePx || 18 };
+      config.ButtonSizeSettings[config._selectedKey] = config.ButtonSizeSettings[config._selectedKey] || { WidthPx: '', HeightPx: '' };
     }}
   </div>
 
@@ -164,6 +180,16 @@
     <div style="margin-top:10px; margin-bottom:4px;">Icon size (px) <span style="opacity:0.75;">(12-48, checked on save)</span></div>
     <input type="text" ng-model="config.ButtonEditorIconSizeInput"
            style="width: 171px;">
+
+    <div style="margin-top:10px; margin-bottom:4px;">Button width (px)</div>
+    <input type="text" ng-model="config.ButtonEditorWidthPx"
+           style="width: 171px;"
+           placeholder="Auto">
+
+    <div style="margin-top:10px; margin-bottom:4px;">Button height (px)</div>
+    <input type="text" ng-model="config.ButtonEditorHeightPx"
+           style="width: 171px;"
+           placeholder="Auto">
 
     <button type="button"
             ng-click="config.SaveSelectedButtonTrigger = (config.SaveSelectedButtonTrigger || 0) + 1"
